@@ -8,6 +8,15 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon" href="icon-192x192.png">
 <head>
+  <script>
+  if(window.location.protocol === 'http:') {
+    window.location.href = 'https://' + 
+      window.location.hostname + 
+      window.location.pathname;
+  }
+</script>
+  <meta name="apple-itunes-app" content="app-id=APP_ID">
+<meta name="apple-mobile-web-app-capable" content="yes">
   <!-- Compatibilidad Safari -->
 <meta name="format-detection" content="telephone=no">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1131,5 +1140,6 @@
   </script>
 </body>
 </html>
+
 
 
