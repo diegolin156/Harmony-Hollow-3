@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Juegos para Niñas - Pastel Edition</title>
+  <title>Harmony Hollow</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    /* Paleta de colores femenina */
+    /* Paleta de colores pastel */
     :root {
       --p1: #f8c8dc;  /* Rosa pastel */
       --p3: #f5e6e8;  /* Rosa muy claro */
@@ -17,6 +17,8 @@
       --success: #b5e8c8; /* Verde pastel */
       --flower1: #ffcce6;
       --flower2: #ffb3d9;
+      --level-unlocked: #d6a2e8; /* Lila pastel para botones desbloqueados */
+      --level-locked: #e0c8f0; /* Lila más claro para bloqueados */
     }
 
     * { 
@@ -277,7 +279,7 @@
     }
     
     .level-btn {
-      background: var(--accent);
+      background: var(--level-unlocked);
       width: 130px;
       height: 130px;
       border-radius: 25px;
@@ -318,10 +320,10 @@
     }
     
     .level-btn.locked { 
-      background: #e0e0e0 !important; 
+      background: var(--level-locked) !important; 
       cursor: not-allowed; 
       box-shadow: none; 
-      opacity: 0.7; 
+      opacity: 0.9; 
     }
     
     .level-btn.unlocked:hover { 
@@ -424,7 +426,7 @@
       background-size: 300px 300px;
       background-position: center;
       border-radius: 10px;
-      cursor: grab;
+      cursor: pointer;
       transition: transform 0.2s, border 0.2s;
       box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
     }
@@ -433,6 +435,11 @@
       border: 3px solid var(--success);
       cursor: default;
       animation: popIn 0.5s;
+    }
+
+    .puzzle-piece.selected {
+      border: 3px solid var(--accent);
+      box-shadow: 0 0 10px var(--accent);
     }
     
     /* I Spy */
@@ -635,17 +642,27 @@
         width: 70px;
         height: 70px;
       }
+
+      .puzzle-piece {
+        height: 80px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .puzzle-piece {
+        height: 70px;
+      }
     }
   </style>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎀</text></svg>">
   <!-- SEO Optimization -->
-<meta name="description" content="Juegos educativos para niñas: Memotest, Rompecabezas y I Spy con diseño pastel">
+<meta name="description" content="Harmony Hollow: Juegos educativos con diseño pastel">
 <meta name="keywords" content="juegos niñas, juegos infantiles, memotest niños, rompecabezas online, i spy juego">
 <meta name="author" content="Tu Nombre">
 <meta name="robots" content="index, follow">
 
 <!-- Open Graph (para redes sociales) -->
-<meta property="og:title" content="Juegos para Niñas - Pastel Edition">
+<meta property="og:title" content="Harmony Hollow">
 <meta property="og:description" content="Juegos educativos y divertidos con personajes adorables">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://tudominio.com">
@@ -653,7 +670,7 @@
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Juegos para Niñas - Pastel Edition">
+<meta name="twitter:title" content="Harmony Hollow">
 <meta name="twitter:description" content="Diversión educativa con diseño pastel">
 <meta name="twitter:image" content="https://tudominio.com/preview.png">
 </head>
@@ -700,7 +717,7 @@
 
     <!-- MENÚ PRINCIPAL -->
     <div id="main-screen" class="screen center-text">
-      <h1 class="large-title">🎀 Menú de Juegos 🎀</h1>
+      <h1 class="large-title">🎀 Harmony Hollow 🎀</h1>
       <div class="levels">
         <div class="level-btn unlocked" id="level1-btn">
           <i class="fas fa-brain large-icon"></i><br>Memotest
@@ -764,7 +781,7 @@
   </div>
 
   <script>
-    // Personajes + acentos (manteniendo los colores originales)
+    // Personajes + acentos
     const personajes = [
       {name:'Julián', image:'julian.png', accent:'#5890ff'},
       {name:'Julita', image:'julita.png', accent:'#ef6e6e'},
@@ -775,15 +792,11 @@
     ];
 
     let selectedCharacter = null;
+    let selectedPuzzlePiece = null; // Para funcionalidad táctil del puzzle
     
     // Estado persistente durante la sesión
     const gameState = { 
-      unlocked: [1], // Nivel 1 siempre desbloqueado
-      unlockedColors: {
-        1: "#f8c8dc", // Color para el nivel 1
-        2: "#d6a2e8", // Color para el nivel 2
-        3: "#ffb6c1"  // Color para el nivel 3
-      }
+      unlocked: [1] // Nivel 1 siempre desbloqueado
     };
 
     const screens = {
@@ -799,7 +812,7 @@
     window.addEventListener('DOMContentLoaded', ()=>{
       initCharacterSelect();
       initNav();
-      refreshButtons(); // Aplicar colores iniciales
+      refreshButtons();
     });
 
     // 1) Selección personaje
@@ -824,7 +837,7 @@
         screens.select.classList.remove('active');
         screens.header.classList.remove('hidden');
         screens.main.classList.add('active');
-        refreshButtons(); // Actualizar botones con el nuevo color
+        refreshButtons();
       });
 
       changeBtn.addEventListener('click', ()=>{
@@ -874,7 +887,6 @@
       Object.values(screens).forEach(s=>s.classList.remove('active'));
       screens[name].classList.add('active');
       
-      // Actualizar botones al mostrar el menú principal
       if(name === 'main') refreshButtons();
     }
 
@@ -886,15 +898,9 @@
         if(gameState.unlocked.includes(lvl)){
           btn.classList.add('unlocked');
           btn.classList.remove('locked');
-          
-          // Usar el color del personaje actual para los botones desbloqueados
-          if (selectedCharacter) {
-            btn.style.backgroundColor = selectedCharacter.accent;
-          }
         } else {
           btn.classList.add('locked');
           btn.classList.remove('unlocked');
-          btn.style.backgroundColor = ''; // Resetear color
         }
       });
     }
@@ -967,11 +973,12 @@
       function reset(){ flipped=false; lock=false; first=null; second=null; }
     }
 
-    // 4) Puzzle – swap y lock correcto
+    // 4) Puzzle – sistema táctil para móviles
     function initPuzzle(){
       refreshButtons();
-      window.puzzleState=[...Array(9).keys()];
+      window.puzzleState = [...Array(9).keys()];
       shuffle(window.puzzleState);
+      selectedPuzzlePiece = null;
       renderPuzzle();
     }
 
@@ -979,43 +986,61 @@
       const container = document.getElementById('puzzle-container');
       container.innerHTML='';
       
-      // Calcular tamaño dinámico
       const containerWidth = container.clientWidth;
       const pieceWidth = containerWidth / 3;
       
       window.puzzleState.forEach((idx,pos)=>{
         const p=document.createElement('div');
         p.className='puzzle-piece';
-        p.dataset.idx=idx; p.dataset.pos=pos;
+        p.dataset.idx=idx; 
+        p.dataset.pos=pos;
         p.style.backgroundImage=`url(${selectedCharacter.image})`;
-        
-        // Usar tamaño calculado
         p.style.backgroundPosition=`-${(idx%3)*pieceWidth}px -${Math.floor(idx/3)*pieceWidth}px`;
         p.style.backgroundSize = `${containerWidth}px ${containerWidth}px`;
 
-        if(idx==pos){
+        if(idx===pos){
           p.classList.add('correct');
-          p.draggable=false;
-        } else {
-          p.draggable=true;
-          p.addEventListener('dragstart', e=>e.dataTransfer.setData('pos',pos));
-          p.addEventListener('dragover', e=>e.preventDefault());
-          p.addEventListener('drop', e=>{
-            const from=+e.dataTransfer.getData('pos'), to=pos;
-            [window.puzzleState[from],window.puzzleState[to]]=
-              [window.puzzleState[to],window.puzzleState[from]];
-            renderPuzzle();
-            if(window.puzzleState.every((v,i)=>v===i)){
-              if (!gameState.unlocked.includes(3)) {
-                gameState.unlocked.push(3);
-              }
-              refreshButtons();
-              setTimeout(()=> showCongrats('puzzle'),300);
-            }
-          });
+        } else if(selectedPuzzlePiece === pos) {
+          p.classList.add('selected');
         }
+
+        p.addEventListener('click', () => handlePuzzleClick(pos));
         container.append(p);
       });
+    }
+
+    function handlePuzzleClick(pos) {
+      const piece = window.puzzleState[pos];
+      
+      // Si la pieza ya está en su posición, no hacer nada
+      if(piece === pos) return;
+      
+      if(selectedPuzzlePiece === null) {
+        // Seleccionar primera pieza
+        selectedPuzzlePiece = pos;
+        renderPuzzle();
+      } else if(selectedPuzzlePiece === pos) {
+        // Deseleccionar si se hace clic en la misma pieza
+        selectedPuzzlePiece = null;
+        renderPuzzle();
+      } else {
+        // Intercambiar piezas
+        const firstPos = selectedPuzzlePiece;
+        [window.puzzleState[firstPos], window.puzzleState[pos]] = 
+          [window.puzzleState[pos], window.puzzleState[firstPos]];
+        
+        selectedPuzzlePiece = null;
+        renderPuzzle();
+        
+        // Comprobar si el puzzle está resuelto
+        if(window.puzzleState.every((v,i)=>v===i)) {
+          if (!gameState.unlocked.includes(3)) {
+            gameState.unlocked.push(3);
+          }
+          refreshButtons();
+          setTimeout(()=> showCongrats('puzzle'),300);
+        }
+      }
     }
 
     // 5) I Spy – personajes dispersos y ocultos
@@ -1023,15 +1048,13 @@
       refreshButtons();
       const area = document.getElementById('ispy-game');
       area.innerHTML = '';
-
-      // Crear objetos disuasorios
+      
       createHiddenObjects(area, 60);
 
       const target = selectedCharacter;
       document.getElementById('ispy-target').innerHTML =
         `Encontrá a <strong>${target.name}</strong><img src="${target.image}" alt="">`;
-
-      // Dispersar personajes en posiciones aleatorias
+      
       personajes.forEach(p => {
         const img = document.createElement('img');
         img.src = p.image;
@@ -1064,20 +1087,16 @@
         element.className = 'hidden-object';
         element.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
         
-        // Tamaño aleatorio
         const size = Math.random() * 40 + 30;
         element.style.width = `${size}px`;
         element.style.height = `${size}px`;
         
-        // Color aleatorio
         const colors = ['#f8c8dc', '#d6a2e8', '#ffb6c1', '#c8a2c8'];
         element.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
         
-        // Posición aleatoria
         element.style.left = `${Math.random() * 90 + 5}%`;
         element.style.top = `${Math.random() * 90 + 5}%`;
         
-        // Rotación y animación aleatoria
         element.style.transform = `rotate(${Math.random() * 360}deg)`;
         element.style.animation = `float ${3 + Math.random() * 4}s ease-in-out ${Math.random() * 2}s infinite`;
         
